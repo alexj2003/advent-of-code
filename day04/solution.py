@@ -21,3 +21,23 @@ for i in range(len(wordsearch)):
                 count += 1
 
 print(f"Count of {word}: {count}")
+
+# Part 2
+def check_cross(wordsearch, x, y):
+    if not (0 < x < len(wordsearch) - 1 and 0 < y < len(wordsearch[0]) - 1):
+        return 0
+    elif wordsearch[x][y] != "A":
+        return 0
+
+    diagonal_1 = wordsearch[x - 1][y - 1] + wordsearch[x + 1][y + 1]
+    diagonal_2 = wordsearch[x - 1][y + 1] + wordsearch[x + 1][y - 1]
+    allowed = ["MS", "SM"]
+
+    return 1 if diagonal_1 in allowed and diagonal_2 in allowed else 0
+
+count = 0
+for i in range(len(wordsearch)):
+    for j in range(len(wordsearch[0])):
+        count += check_cross(wordsearch, i, j)
+
+print(f"Count of crosses: {count}")
