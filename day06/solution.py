@@ -5,64 +5,70 @@ with open("input.txt") as f:
         lab_map.append(list(line.strip()))
 
 # Part 1
-def update_guard(lab_map):
-    # Find the starting position of the guard
+directions = {
+    "^": (-1, 0),
+    ">": (0, 1),
+    "v": (1, 0),
+    "<": (0, -1)
+}
+
+def rotate(direction):
+    if direction == "^":
+        return ">"
+    elif direction == ">":
+        return "v"
+    elif direction == "v":
+        return "<"
+    else:
+        return "^"
+
+def check_bounds(lab_map, i, j):
+    return 0 <= i < len(lab_map) and 0 <= j < len(lab_map[0])
+
+def move_guard(lab_map, x, y, direction):
+    unique_visited = set()
+    position_directions = set()
+    position_directions.add((x, y, direction))
+
+    while check_bounds(lab_map, x, y):
+        unique_visited.add((x, y))
+
+        # Find the next position
+        dx, dy = directions[direction]
+        new_x, new_y = x + dx, y + dy
+
+        # Check if the guard is out of the map
+        if check_bounds(lab_map, new_x, new_y) and lab_map[new_x][new_y] == "#":
+            direction = rotate(direction)
+        else:
+            x, y = new_x, new_y
+        
+        # If we've visited this position before in same direction, we have a loop
+        if (((x, y, direction)) in position_directions):
+            return True, unique_visited
+        else:
+            position_directions.add((x, y, direction))
+
+    return False, unique_visited
+
+def find_initial_position(lab_map):
     for i in range(len(lab_map)):
         for j in range(len(lab_map[i])):
             if lab_map[i][j] in ["^", ">", "v", "<"]:
-                guard_direction = lab_map[i][j]
-                
-                # Update the guard position
-                if guard_direction == "^":
-                    if lab_map[i - 1][j] == "#":
-                        # Turn right
-                        new_position = (i, j + 1)
-                        new_direction = ">"
-                    else:
-                        # Move up
-                        new_position = (i - 1, j)
-                        new_direction = "^"
-                elif guard_direction == ">":
-                    if lab_map[i][j + 1] == "#":
-                        # Turn down
-                        new_position = (i + 1, j)
-                        new_direction = "v"
-                    else:
-                        # Move right
-                        new_position = (i, j + 1)
-                        new_direction = ">"
-                elif guard_direction == "v":
-                    if lab_map[i + 1][j] == "#":
-                        # Turn left
-                        new_position = (i, j - 1)
-                        new_direction = "<"
-                    else:
-                        # Move down
-                        new_position = (i + 1, j)
-                        new_direction = "v"
-                else:
-                    if lab_map[i][j - 1] == "#":
-                        # Turn up
-                        new_position = (i - 1, j)
-                        new_direction = "^"
-                    else:
-                        # Move left
-                        new_position = (i, j - 1)
-                        new_direction = "<"
-                
-                # Update map
-                lab_map[i][j] = "X"
-                lab_map[new_position[0]][new_position[1]] = new_direction
+                return i, j, lab_map[i][j]
 
-                # Check if the guard is out of the map
-                if 0 <= new_position[0] < len(lab_map) and 0 <= new_position[1] < len(lab_map[0]):
-                    return lab_map, True
-                else:
-                    return lab_map, False
+# Part 1
+x, y, direction = find_initial_position(lab_map)
+_, unique_positions = move_guard(lab_map, x, y, direction)
+print(f"Positions guard visits: {len(unique_positions)}")
 
-guard_in_map = True
-while guard_in_map:
-    lab_map, guard_in_map = update_guard(lab_map)
+# Part 2 - this is fairly slow, but works
+loop_count = 0
+unique_positions.remove((x, y))
+for pos in unique_positions:
+    map_copy = [row[:] for row in lab_map]
+    map_copy[pos[0]][pos[1]] = "#"
+    if move_guard(map_copy, x, y, direction)[0]:
+        loop_count += 1
 
-count = sum(x.count("X") for x in lab_map)
-print(f"Positions guard visits: {count}")
+print(f"Number of possible loops: {loop_count}")
