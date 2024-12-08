@@ -14,6 +14,7 @@ with open("input.txt", "r") as f:
             if c not in antennas:
                 antennas[c] = []
             antennas[c].append((i, j))
+    last_i, last_j = i, j
 
 # Part 1
 antinodes = set()
@@ -26,3 +27,19 @@ for a, nodes in antennas.items():
             antinodes.add((di, dj))
 
 print(f"Part 1: {len(antinodes)}")
+
+# Part 2
+antinodes = set()
+
+for a, nodes in antennas.items():
+    for (i1, j1), (i2, j2) in permutations(nodes, 2):
+        di = (2 * i1) - i2
+        dj = (2 * j1) - j2
+        antinodes.add((i2, j2))
+
+        while (di, dj) in grid:
+            antinodes.add((di, dj))
+            di += i1 - i2
+            dj += j1 - j2
+
+print(f"Part 2: {len(antinodes)}")
