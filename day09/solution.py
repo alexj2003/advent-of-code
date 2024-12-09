@@ -1,14 +1,16 @@
 # Read input
 def build_data(raw_data):
     data = []
+    ids = set()
     for i, d in enumerate(raw_data):
         if i % 2 == 0:
             # Even index = ID number
             data += [int(i / 2)] * int(d)
+            ids.add(int(i / 2))
         else:
             # Odd index = free space
             data += ["."] * int(d)
-    return data
+    return data, ids
 
 # Calculate checksum
 def calc_checksum(data):
@@ -18,7 +20,7 @@ def calc_checksum(data):
             checksum += i * d
     return checksum
 
-# Fragment data
+# Part 1 - fragment individual blocks
 # Probably a more efficient way to do this
 def fragment(data):
     while True:
@@ -38,18 +40,64 @@ def fragment(data):
         # Swap
         data[first_free], data[last_id] = data[last_id], data[first_free]
 
+# Part 2 - fragment whole files
+def fragment_files(data, ids):
+    # Calculate file and span locations
+    spans = []
+    file_starts = {}
+
+    i = 0
+    while i < len(data):
+        if data[i] == ".":
+            start = i
+            while i < len(data) and data[i] == ".":
+                i += 1
+            spans.append((start, i - start))
+        else:
+            if data[i] not in file_starts:
+                file_starts[data[i]] = i
+            i += 1
+
+    for id in reversed(list(ids)):
+        file_start = file_starts[id]
+        file_size = data.count(id)
+
+        # Find empty span large enough to fit file
+        for span_id, (span_start, span_size) in enumerate(spans):
+            if span_start < file_start and span_size >= file_size:
+                # Move file
+                file_end = file_start + file_size
+                data[span_start:span_start + file_size] = data[file_start:file_end]
+                data[file_start:file_end] = ["."] * file_size
+
+                # Update span
+                remaining_length = span_size - file_size
+                if remaining_length == 0:
+                    spans.pop(span_id)
+                else:
+                    spans[span_id] = (span_start + file_size, remaining_length)
+                break
+    return data
+
 # Test data
-# data = build_data("2333133121414131402")
+# data, ids = build_data("2333133121414131402")
 # fragmented = fragment(data)
-# print(fragmented)
+# checksum = calc_checksum(fragmented)
+# print(checksum)
+
+# fragmented = fragment_files(data, ids)
 # checksum = calc_checksum(fragmented)
 # print(checksum)
 
 # Part 1
-data = []
 with open("input.txt", "r") as file:
-    data = build_data(file.read().strip())
+    data, ids = build_data(file.read().strip())
 
 fragmented = fragment(data)
 checksum = calc_checksum(fragmented)
 print(f"Part 1: {checksum}")
+
+# Part 2
+fragmented = fragment_files(data, ids)
+checksum = calc_checksum(fragmented)
+print(f"Part 2: {checksum}")
