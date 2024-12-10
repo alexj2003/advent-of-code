@@ -8,6 +8,7 @@ with open("input.txt", "r") as f:
 # Get the score of a trailhead
 def explore_trail(trailhead):
     unique_endpoints = set()
+    rating = 0
     visited = set()
     queue = [trailhead]
 
@@ -17,6 +18,7 @@ def explore_trail(trailhead):
         # If at the end of a trail
         height = grid[position]
         if height == 9:
+            rating += 1
             unique_endpoints.add(position)
             continue
 
@@ -24,11 +26,17 @@ def explore_trail(trailhead):
         new_positions = [(position[0] + i, position[1] + j) for i, j in directions]
         queue += [p for p in new_positions if p in grid and p not in visited and grid[p] == height + 1]
         visited.add(position)
-    return len(unique_endpoints)
+    return len(unique_endpoints), rating
 
 directions = [(1, 0), (0, 1), (-1, 0), (0, -1)]
 trailheads = [(i, j) for i, j in grid if grid[(i, j)] == 0]
 
-# Part 1
-endpoints = sum([explore_trail(trailhead) for trailhead in trailheads])
-print(f"Part 1: {endpoints}")
+total_endpoints = 0
+total_rating = 0
+for trailhead in trailheads:
+    endpoints, rating = explore_trail(trailhead)
+    total_endpoints += endpoints
+    total_rating += rating
+
+print(f"Part 1: {total_endpoints}")
+print(f"Part 2: {total_rating}")
