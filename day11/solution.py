@@ -1,6 +1,10 @@
+from collections import Counter
+
 # Read input
 with open("input.txt", "r") as f:
     data = f.read().strip().split()
+
+# Part 1
 
 # Update an individual stone
 def update_stone(stone):
@@ -37,3 +41,33 @@ def run_blinks(data, n):
 # print(len(run_blinks(data, 25))) # 55312
 
 print(f"Part 1: {len(run_blinks(data, 25))}")
+
+# Part 2
+# Part 1 code was incredibly inefficient, so using a counter instead
+
+def blink_v2(data):
+    new_counts = Counter()
+    for stone, count in data.items():
+        if stone == "0":
+            new_counts["1"] += count
+        elif len(stone) % 2 == 0:
+            new_len = len(stone) // 2
+            a, b = str(int(str(stone)[:new_len])), str(int(str(stone)[new_len:]))
+            new_counts[a] += count
+            new_counts[b] += count
+        else:
+            new_counts[str(int(stone) * 2024)] += count
+    return new_counts
+
+def run_blinks_v2(data, n):
+    counts = Counter(data)
+    for _ in range(n):
+        counts = blink_v2(counts)
+    return counts
+
+# Test data
+# data = "125 17".split()
+# print(sum(run_blinks_v2(data, 6).values())) # 22
+# print(sum(run_blinks_v2(data, 25).values())) # 55312
+
+print(f"Part 2: {sum(run_blinks_v2(data, 75).values())}")
