@@ -33,4 +33,15 @@ def calc_safety(robots, i):
     return a * b * c * d
 
 # Part 1
-print("Part 1:", calc_safety(robots, 100))
+print(f"Part 1: {calc_safety(robots, 100)}")
+
+# Part 2
+# Assuming that the picture appears when safety is minimised
+# Picture appearing in 10000 seconds was a (correct) guess
+safeties = []
+for i in range(0, 10000):
+    i_safeties = calc_safety(robots, i)
+    safeties.append(i_safeties)
+
+min_safety = min(safeties)
+print(f"Part 2: {safeties.index(min_safety)}")
