@@ -53,8 +53,9 @@ with open("input.txt", "r") as f:
         byte_positions.append(tuple(map(int, line.strip().split(","))))
 
 # Make grid
+memory_loc = 1024
 grid = [["." for _ in range(71)] for _ in range(71)]
-grid = fill_grid(grid, byte_positions, 1024)
+grid = fill_grid(grid, byte_positions, memory_loc)
 
 # # Test data
 # grid = """...#...
@@ -105,3 +106,18 @@ new_grid.append(["#" for _ in range(new_len)])
 # Reuseing dijkstra function from day 16
 steps = dijkstra(new_grid)
 print(f"Part 1: {steps}")
+
+# Part 2
+# I'm not sure if there's a better way to do this but its not *too* slow
+while True:
+    # Add new byte
+    x, y = byte_positions[memory_loc]
+    new_grid[y + 1][x + 1] = "#" # Need to +1 because of the surrounding walls
+    memory_loc += 1
+
+    # Search for path
+    steps = dijkstra(new_grid)
+
+    if steps is None:
+        print(f"Part 2: {x},{y}")
+        break
