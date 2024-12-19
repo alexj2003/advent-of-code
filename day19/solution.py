@@ -15,6 +15,14 @@ def calc_possible(design, patterns):
     
     return any((calc_possible(design[len(pattern):], patterns) if design.startswith(pattern) else False) for pattern in patterns)
 
+# Part 2, calculate the number of possible ways to build a design
+@cache
+def calc_possible_v2(design, patterns):
+    if design == "":
+        return 1
+    
+    return sum(calc_possible_v2(design[len(pattern):], patterns) for pattern in patterns if design.startswith(pattern))
+
 # Test data
 data = """r, wr, b, g, bwu, rb, gb, br
 
@@ -41,3 +49,10 @@ for design in designs:
         possible += 1
 
 print(f"Part 1: {possible}")
+
+# Part 2
+total = 0
+for design in designs:
+    total += calc_possible_v2(design, patterns)
+
+print(f"Part 2: {total}")
