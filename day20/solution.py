@@ -1,5 +1,4 @@
-from collections import defaultdict, deque
-import heapq
+from collections import deque
 from itertools import combinations
 
 # Get start and end positions
@@ -50,14 +49,14 @@ def compute_dist(maze):
     
     return distances
 
-def count_cheats(maze):
+def count_cheats(maze, cheat_time):
     distances = compute_dist(maze)
 
     cheats = 0
     for ((r1, c1), n1), ((r2, c2), n2) in combinations(distances.items(), 2):
         dist = abs(r1 - r2) + abs(c1 - c2)
 
-        if dist <= 2 and abs(n2 - n1) >= dist + 100:
+        if dist <= cheat_time and abs(n2 - n1) >= dist + 100:
             cheats += 1
     
     return cheats
@@ -84,6 +83,11 @@ def count_cheats(maze):
 with open("input.txt", "r") as f:
     maze = read_input(f.read())
 
-cheats = count_cheats(maze)
+# Part 1
+cheats = count_cheats(maze, 2)
+print(f"Part 1: {cheats}")
 
-print(f"Number of cheats: {cheats}")
+# Part 2
+cheats = count_cheats(maze, 20)
+print(f"Part 2: {cheats}")
+
