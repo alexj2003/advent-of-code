@@ -1,4 +1,5 @@
-from itertools import permutations, product
+from functools import cache
+from itertools import permutations
 
 NUM_PAD = [
     ["7", "8", "9"],
@@ -24,7 +25,10 @@ DIRS = {
 }
 
 # Find number of presses for a code on a keypad
-def find_presses(code, depth = 2, keypad = NUM_PAD_DIRS, cur_key = None):
+@cache
+def find_presses(code, depth = 2, use_num_pad = True, cur_key = None):
+    keypad = NUM_PAD_DIRS if use_num_pad else DIR_PAD_DIRS
+
     if not code:
         return 0
     
@@ -60,13 +64,13 @@ def find_presses(code, depth = 2, keypad = NUM_PAD_DIRS, cur_key = None):
                 if not (cx, cy) in keypad.values():
                     break
             else:
-                press_lens.append(find_presses(combo+("A",), depth = depth - 1, keypad = DIR_PAD_DIRS))
+                press_lens.append(find_presses(combo+("A",), depth = depth - 1, use_num_pad = False))
         min_presses = min(press_lens)
     else:
         # If final keypad
         min_presses = len(presses) + 1
     
-    return min_presses + find_presses(code[1:], depth = depth, keypad = keypad, cur_key = (kx, ky))
+    return min_presses + find_presses(code[1:], depth = depth, use_num_pad = use_num_pad, cur_key = (kx, ky))
 
 # Read data
 def read_data(data):
@@ -92,3 +96,10 @@ for code in codes:
     complexity += find_presses(code) * int(code[:-1])
 
 print(f"Part 1: {complexity}")
+
+# Part 2
+complexity = 0
+for code in codes:
+    complexity += find_presses(code, depth = 25) * int(code[:-1])
+
+print(f"Part 2: {complexity}")
