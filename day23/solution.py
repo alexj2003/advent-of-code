@@ -18,6 +18,17 @@ def find_t3_groups(links):
                                              and n3 in links[n2])
     return groups
 
+# Find all complete networks of nodes
+def find_complete_networks(links):
+    networks = set()
+
+    for n1 in links:
+        for n2 in links[n1]:
+            network = set.intersection(*({n} | links[n] for n in links[n1] if n != n2))
+            networks.add(tuple(sorted(network)))
+    
+    return networks
+
 # Test data
 data = """kh-tc
 qp-kh
@@ -62,3 +73,8 @@ links = build_links(data)
 # Part 1
 groups = find_t3_groups(links)
 print(f"Part 1: {len(groups)}")
+
+# Part 2
+networks = find_complete_networks(links)
+largest_network = max(networks, key=len)
+print(f"Part 2: {",".join(sorted(largest_network))}")
