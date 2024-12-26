@@ -117,3 +117,5 @@ inputs, operations, outputs = parse_data(data)
 wires = run_instructions(inputs, operations, outputs)
 result = get_z_output_val(wires)
 print(f"Part 1: {result}")
+
+# Part 2 - solved by hand
